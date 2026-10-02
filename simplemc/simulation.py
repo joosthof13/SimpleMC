@@ -18,7 +18,7 @@ def simulate(
     ----------
     model:
         Function that receives a NumPy random generator and
-        returns one simulation result.
+        returns one numeric simulation result.
 
     n:
         Number of simulation runs.
@@ -41,15 +41,38 @@ def simulate(
     if not callable(model):
         raise TypeError("model must be callable.")
 
+    if seed is not None and not isinstance(seed, (int, np.integer)):
+        raise TypeError("seed must be an integer or None.")
+
     rng = np.random.default_rng(seed)
 
-    values = [model(rng) for _ in range(n)]
-    values = np.asarray(values)
+    values = []
 
-    if values.ndim != 1:
-        raise ValueError(
-            "The model must return exactly one value per simulation run."
-        )
+    for _ in range(n):
+        value = model(rng)
+
+        if not np.isscalar(value):
+            raise ValueError(
+                "The model must return exactly one scalar value "
+                "per simulation run."
+            )
+
+        if not isinstance(
+            value,
+            (int, float, np.integer, np.floating),
+        ):
+            raise TypeError(
+                "The model must return a numeric value."
+            )
+
+        if not np.isfinite(value):
+            raise ValueError(
+                "The model returned a non-finite value."
+            )
+
+        values.append(value)
+
+    values = np.asarray(values, dtype=float)
 
     return SimulationResult(
         values=values,
