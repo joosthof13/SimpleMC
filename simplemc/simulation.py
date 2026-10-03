@@ -14,22 +14,38 @@ def simulate(
     """
     Run a Monte Carlo simulation.
 
+    The model is executed ``n`` times. Each execution receives
+    the same NumPy random number generator, allowing the model
+    to generate random values.
+
     Parameters
     ----------
     model:
-        Function that receives a NumPy random generator and
-        returns one numeric simulation result.
+        Callable receiving a NumPy ``Generator`` and returning
+        one numeric scalar.
 
     n:
-        Number of simulation runs.
+        Number of independent simulation runs.
 
     seed:
-        Optional random seed for reproducibility.
+        Optional seed used to initialize the random number
+        generator. Using the same seed produces the same
+        simulation results.
 
     Returns
     -------
     SimulationResult
-        Results of the simulation.
+        Object containing all simulated values and summary
+        statistics.
+
+    Raises
+    ------
+    TypeError
+        If ``model``, ``n``, or ``seed`` has an invalid type.
+
+    ValueError
+        If ``n`` is not positive or the model returns an
+        invalid value.
     """
 
     if not isinstance(n, (int, np.integer)):
